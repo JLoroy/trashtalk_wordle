@@ -1,8 +1,70 @@
+# LANGCHAIN
+"""
+
+Here is the state of the game:
+The secret word is YOUTH
+the user guessed APPLE, ADIEU, GRUMP
+the guess the user just submitted is MOUTH
+
+What is your comment? (keep it very short and unpleasant. Keep the secret word secret) """
+
+## Langchain part
+from langchain import PromptTemplate
+from langchain.llms import OpenAI
+from langchain.chat_models import ChatOpenAI
+from langchain import LLMChain
+from langchain import PromptTemplate
+from langchain.prompts.chat import (
+    ChatPromptTemplate,
+    SystemMessagePromptTemplate,
+    AIMessagePromptTemplate,
+    HumanMessagePromptTemplate,
+)
+from langchain.schema import (
+    AIMessage,
+    HumanMessage,
+    SystemMessage
+)
+
+system_prompt_template = """
+    You are a very cynique and sarcastic commenter. You're watching someone playing WORDLE and you are making a comment over each guess the player tries to roast him in just a few passive aggressive words. The player feels motivated by a bit of trashtalk. they have a lot of humor so you don't have to fear offensing them.
+"""
+
+human_prompt_template = """Here is the state of the game:
+The secret word is {secret_word}. 
+{history}
+the guess the user just submitted is {guess}. 
+
+What is your comment? (keep it very short and unpleasant. Keep the secret word secret) """
+
+system_message_prompt = SystemMessagePromptTemplate.from_template(system_prompt_template)
+human_message_prompt = HumanMessagePromptTemplate.from_template(human_prompt_template)
+chat_prompt = ChatPromptTemplate.from_messages([system_message_prompt, human_message_prompt])
+
+def load_Chat():
+    """Logic for loading the chain you want to use should go here."""
+    # Make sure your openai_api_key is set as an environment variable
+    chat = ChatOpenAI(temperature=0.8)
+    return chat
+
+chat = load_Chat()
+
+def react(secret_word, guesses, guess):
+    history = "this is the opening guess"
+    if len(guesses) > 0:
+        history = ", ".join(guesses)
+    chat_prompt_with_values = chat_prompt.format_prompt(secret_word=secret_word, history=history, guess=guess)
+    response = chat(chat_prompt_with_values.to_messages()).content
+    return response
+
+
+
+# STREAMLIT Part
 import streamlit as st
-import random, re
+import random, re, time
 
 # The list of 5-letter words. In a real game, you might use a larger list.
-WORDS = ["apple", "grape", "lemon", "melon", "peach"]
+WORDS = ["apple","beach","brain","bread","brush","chair","chest","chord","click","clock","cloud","dance","diary","drink","earth","flute","fruit","ghost","grape","green","happy","heart","house","juice","light","money","music","party","pizza","plant","radio","river","salad","sheep","shoes","smile","snack","snake","spice","spoon","storm","table","toast","tiger","train","water","whale","wheel","woman","world","write","youth","abuse","adult","agent","anger","apple","award","basis","beach","birth","block","blood","board","brain","bread","break","brown","buyer","cause","chain","chair","chest","chief","child","china","claim","class","clock","coach","coast","court","cover","cream","crime","cross","crowd","crown","cycle","dance","death","depth","doubt","draft","drama","dream","dress","drink","drive","earth","enemy","entry","error","event","faith","fault","field","fight","final","floor","focus","force","frame","frank","front","fruit","glass","grant","grass","green","group","guide","heart","henry","horse","hotel","house","image","index","input","issue","japan","jones","judge","knife","laura","layer","level","lewis","light","limit","lunch","major","march","match","metal","model","money","month","motor","mouth","music","night","noise","north","novel","nurse","offer","order","other","owner","panel","paper","party","peace","peter","phase","phone","piece","pilot","pitch","place","plane","plant","plate","point","pound","power","press","price","pride","prize","proof","queen","radio","range","ratio","reply","right","river","round","route","rugby","scale","scene","scope","score","sense","shape","share","sheep","sheet","shift","shirt","shock","sight","simon","skill","sleep","smile","smith","smoke","sound","south","space","speed","spite","sport","squad","staff","stage","start","state","steam","steel","stock","stone","store","study","stuff","style","sugar","table","taste","terry","theme","thing","title","total","touch","tower","track","trade","train","trend","trial","trust","truth","uncle","union","unity","value","video","visit","voice","waste","watch","water","while","white","whole","woman","world","youth"]
 
 def check_guess(secret_word, guess):
     # Initialize a list of 'gray' for each letter in the guess.
@@ -66,6 +128,8 @@ def main():
         st.session_state.input_key = "input"
     if 'game_over' not in st.session_state:
         st.session_state.game_over = False
+    if 'chat_history' not in st.session_state:
+        st.session_state.chat_history = []
 
     # Handle play again logic.
     if st.session_state.game_over:
@@ -74,6 +138,7 @@ def main():
             st.session_state.secret_word = random.choice(WORDS)
             st.session_state.guesses = []
             st.session_state.feedbacks = []
+            st.session_state.chat_history = []
             st.session_state.input_key = "input" + str(random.randint(0, 1000000))
 
     # Check if game is still ongoing.
@@ -89,6 +154,8 @@ def main():
             game_col.write("Please enter a 5-letter word.")
         else:
             feedback = check_guess(st.session_state.secret_word, guess)
+            reaction= react(st.session_state.secret_word, st.session_state.guesses, guess)
+            st.session_state.chat_history.append(reaction)
             st.session_state.guesses.append(guess)
             st.session_state.feedbacks.append(feedback)
 
@@ -98,13 +165,18 @@ def main():
             if game_col.button("Next"):
                 pass
         elif len(st.session_state.guesses) >= 6:
-            game_col.write("You lost!")
+            game_col.write("You lost! the word was "+st.session_state.secret_word)
             st.session_state.game_over = True
+            if game_col.button("Next"):
+                pass
 
         # Display previous feedbacks
         for past_feedback, past_guess in zip(st.session_state.feedbacks, st.session_state.guesses):
             past_feedback_html = generate_feedback_html(past_feedback, past_guess)
             game_col.markdown(past_feedback_html, unsafe_allow_html=True)
+        
+        for message in st.session_state.chat_history:
+            chat_col.write(message)
 
 if __name__ == "__main__":
     main()
