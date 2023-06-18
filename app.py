@@ -110,8 +110,21 @@ def sanitize_input(input_string):
     else:
         return ""
 
+def message_html(msg, color='gray'):
+    return f"""
+    <div style="
+        display: inline-block;
+        padding: 10px;
+        border-radius: 10px;
+        margin: 2px;
+        background-color: {color};
+        ">
+        {msg}
+    </div>
+    """
+
 def main():
-    st.title('My Wordle Clone')
+    st.title('Trashtalk Wordle')
 
     # Create two columns for the Wordle game and the chat.
     st.write("## Game")
@@ -133,7 +146,7 @@ def main():
 
     # Handle play again logic.
     if st.session_state.game_over:
-        if game_col.button("Play again?"):
+        if game_col.button("Play again? click twice" ):
             st.session_state.game_over = False
             st.session_state.secret_word = random.choice(WORDS)
             st.session_state.guesses = []
@@ -176,7 +189,7 @@ def main():
             game_col.markdown(past_feedback_html, unsafe_allow_html=True)
         
         for message in st.session_state.chat_history:
-            chat_col.write(message)
+            chat_col.markdown(message_html(message, 'purple'), unsafe_allow_html=True)
 
 if __name__ == "__main__":
     main()
