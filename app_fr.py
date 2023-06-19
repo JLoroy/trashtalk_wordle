@@ -1,13 +1,4 @@
 # LANGCHAIN
-"""
-
-Here is the state of the game:
-The secret word is YOUTH
-the user guessed APPLE, ADIEU, GRUMP
-the guess the user just submitted is MOUTH
-
-What is your comment? (keep it very short and unpleasant. Keep the secret word secret) """
-
 ## Langchain part
 from langchain import PromptTemplate
 from langchain.llms import OpenAI
@@ -27,15 +18,15 @@ from langchain.schema import (
 )
 
 system_prompt_template = """
-    You are a very cynique and sarcastic commenter. You're watching someone playing WORDLE and you are making a comment over each guess the player tries to roast him in just a few passive aggressive words. The player feels motivated by a bit of trashtalk. they have a lot of humor so you don't have to fear offensing them.
+    Tu es un commentateur très cynique et sarcastique. Tu regardes quelqu'un jouer à WORDLE et tu fais un commentaire pour juger chaque proposition du joueur pour le taquiner en quelques mots passif-agressifs. Le joueur se sent motivé par un peu de trashtalk. Ils ont beaucoup d'humour donc tu n'as pas à craindre de les offenser.
 """
 
-human_prompt_template = """Here is the state of the game:
-The secret word is {secret_word}. 
+human_prompt_template = """Voici où en est la partie:
+le mot secret est {secret_word}. 
 {history}
-the guess the user just submitted is {guess}. 
+et le joueur vient d'essayer {guess}. 
 
-What is your comment? (keep it very short and unpleasant. Keep the secret word secret) """
+Donne maintenant ton commentaire. Garde cela court et piquant. Surtout ne révèle pas le mot secret."""
 
 system_message_prompt = SystemMessagePromptTemplate.from_template(system_prompt_template)
 human_message_prompt = HumanMessagePromptTemplate.from_template(human_prompt_template)
@@ -50,9 +41,9 @@ def load_Chat():
 chat = load_Chat()
 
 def react(secret_word, guesses, guess):
-    history = "this is the opening guess"
+    history = "C'est son premier essai"
     if len(guesses) > 0:
-        history = ", ".join(guesses)
+        history = "voici les mots que le joueur a déjà essayé: " + ", ".join(guesses)
     chat_prompt_with_values = chat_prompt.format_prompt(secret_word=secret_word, history=history, guess=guess)
     response = chat(chat_prompt_with_values.to_messages()).content
     return response
@@ -64,7 +55,7 @@ import streamlit as st
 import random, re, time
 
 # The list of 5-letter words. In a real game, you might use a larger list.
-WORDS = ["apple","beach","brain","bread","brush","chair","chest","chord","click","clock","cloud","dance","diary","drink","earth","flute","fruit","ghost","grape","green","happy","heart","house","juice","light","money","music","party","pizza","plant","radio","river","salad","sheep","shoes","smile","snack","snake","spice","spoon","storm","table","toast","tiger","train","water","whale","wheel","woman","world","write","youth","abuse","adult","agent","anger","apple","award","basis","beach","birth","block","blood","board","brain","bread","break","brown","buyer","cause","chain","chair","chest","chief","child","china","claim","class","clock","coach","coast","court","cover","cream","crime","cross","crowd","crown","cycle","dance","death","depth","doubt","draft","drama","dream","dress","drink","drive","earth","enemy","entry","error","event","faith","fault","field","fight","final","floor","focus","force","frame","frank","front","fruit","glass","grant","grass","green","group","guide","heart","henry","horse","hotel","house","image","index","input","issue","japan","jones","judge","knife","laura","layer","level","lewis","light","limit","lunch","major","march","match","metal","model","money","month","motor","mouth","music","night","noise","north","novel","nurse","offer","order","other","owner","panel","paper","party","peace","peter","phase","phone","piece","pilot","pitch","place","plane","plant","plate","point","pound","power","press","price","pride","prize","proof","queen","radio","range","ratio","reply","right","river","round","route","rugby","scale","scene","scope","score","sense","shape","share","sheep","sheet","shift","shirt","shock","sight","simon","skill","sleep","smile","smith","smoke","sound","south","space","speed","spite","sport","squad","staff","stage","start","state","steam","steel","stock","stone","store","study","stuff","style","sugar","table","taste","terry","theme","thing","title","total","touch","tower","track","trade","train","trend","trial","trust","truth","uncle","union","unity","value","video","visit","voice","waste","watch","water","while","white","whole","woman","world","youth"]
+WORDS = ["aider","aigle","aimer","album","aller","amour","angle","annee","arbre","arete","arret","assez","assis","avion","bague","balai","balle","bande","barbe","barre","baver","bebes","belle","betes","bijou","bille","bisou","blanc","blond","boire","bosse","botte","bouee","boule","bruit","cache","cadre","calme","canne","casse","champ","chaud","chene","chien","chose","chute","clair","clown","cÅ“ur","colle","conte","corde","corps","coude","court","crabe","craie","creux","crier","croix","cruel","cuire","cygne","danse","debut","doigt","droit","ecole","ecran","eleve","engin","envie","epais","etang","etude","evier","faire","farce","faute","femme","ferme","fesse","filet","fille","finir","fleur","foire","fonce","foret","frein","frere","frite","froid","front","fruit","fumee","fumer","fusee","fusil","garer","geant","geler","gener","genou","glace","gomme","gorge","grain","grand","guepe","gueri","habit","herbe","heure","hibou","hiver","homme","huile","image","jambe","jaune","jeter","jeudi","jeune","jouer","jouet","lacer","lacet","laine","lampe","lapin","large","larme","laver","leger","lever","ligne","linge","lisse","liste","litre","livre","loupe","lourd","lundi","lutin","magie","mains","maman","mardi","marin","matin","melon","metal","metre","micro","mieux","mince","mixer","moins","monde","moule","moyen","nager","nappe","navet","neige","noyau","nuage","obeir","objet","odeur","ombre","ongle","orage","ordre","outil","paire","panda","panne","patte","payer","peche","pelle","pente","perle","peser","petit","photo","pieds","place","plage","plein","plier","pluie","plume","poche","poele","poing","point","poire","pomme","pompe","poney","porte","poser","poste","pouce","poule","preau","prune","punir","puree","queue","radio","radis","ramer","rampe","rater","rayon","reine","repas","rever","riche","rouge","route","ruban","sable","salle","sante","sapin","savon","serre","siege","signe","singe","soupe","sourd","sport","stylo","sucer","sucre","table","tache","talon","taper","tapis","tarte","tasse","taupe","temps","tenir","tente","terre","teter","tigre","tirer","tissu","titre","tordu","train","trait","trier","trois","trous","tuyau","usine","utile","vache","vague","venir","verre","veste","vider","vieux","ville","vitre","vivre","voile","voler","volet","wagon","zebre"]
 
 def check_guess(secret_word, guess):
     # Initialize a list of 'gray' for each letter in the guess.
@@ -127,7 +118,7 @@ def main():
     st.title('Trashtalk Wordle')
 
     # Create two columns for the Wordle game and the chat.
-    st.write("## Game")
+    st.write("## Jeu")
     game_col, chat_col = st.columns(2)
 
     # Initialize session state variables.
@@ -146,7 +137,7 @@ def main():
 
     # Handle play again logic.
     if st.session_state.game_over:
-        if game_col.button("Play again? click twice" ):
+        if game_col.button("Rejouer? (clique 2 fois)" ):
             st.session_state.game_over = False
             st.session_state.secret_word = random.choice(WORDS)
             st.session_state.guesses = []
@@ -157,14 +148,14 @@ def main():
     # Check if game is still ongoing.
     if not st.session_state.game_over:
         # Allow the user to enter a guess.
-        guess = game_col.text_input("Enter your guess", key=st.session_state.input_key)
+        guess = game_col.text_input("Trouve le mot", key=st.session_state.input_key)
         guess = sanitize_input(guess)  # Sanitize the user input
 
         # Check the guess.
         if guess in st.session_state.guesses:
-            game_col.write("You already guessed that word.")
+            game_col.write("Tu as déjà essayé ce mot.")
         elif len(guess) != 5:
-            game_col.write("Please enter a 5-letter word.")
+            game_col.write("Trouve le mot de 5 lettres")
         else:
             feedback = check_guess(st.session_state.secret_word, guess)
             reaction= react(st.session_state.secret_word, st.session_state.guesses, guess)
@@ -174,14 +165,14 @@ def main():
             st.session_state.input_key = "input" + str(random.randint(0, 1000000))
 
         if guess == st.session_state.secret_word:
-            game_col.write("You win!")
+            game_col.write("C'est gagné!")
             st.session_state.game_over = True
-            if game_col.button("Next"):
+            if game_col.button("Suivant"):
                 pass
         elif len(st.session_state.guesses) >= 6:
-            game_col.write("You lost! the word was "+st.session_state.secret_word)
+            game_col.write("Perdu! tu devais trouver "+st.session_state.secret_word)
             st.session_state.game_over = True
-            if game_col.button("Next"):
+            if game_col.button("Suivant"):
                 pass
 
         # Display previous feedbacks
